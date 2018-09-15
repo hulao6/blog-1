@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load article_tags %}
+
+{% block title %}
+    首页 | {% get_owner_name %}'s BLOG
+{% endblock title %}
+
+<!-- 主体 -->
+{% block base_center_content %}
+    <div class="col-lg-8 block-pad">
+        <div class="panel panelbody-bottom-mar">
+            <div class="panel-body">
+
+                <!-- 轮播图 -->
+                <div id="myCarousel" class="carousel slide banner-bottom" data-ride="carousel" data-interval="3000">
+
+                    <ol class="carousel-indicators">
+                        {% for each_banner in banners %}
+                            <li data-target="#myCarousel" data-slide-to="{{ forloop.counter }}"></li>
+                        {% endfor %}
+                    </ol>
+
+                    <div class="carousel-inner">
+                        {% for each_banner in banners %}
+                            <div class="item {% if each_banner.level == 1 %}active{% endif %}">
+                                <a {% if each_banner.target == 2 %}target="_blank"{% endif %} href="{{ each_banner.url }}">
+                                    <img src="{{ MEDIA_URL }}{{ each_banner.image }}" class="banner-size">
+                                </a>
+                                <!--<div class="carousel-caption">{{ each_banner.title }}</div>-->
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
+                        <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                    </a>
+
+                    <a class="right carousel-control" href="#myCarousel" role="button"
+                       data-slide="next">
+                        <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                    </a>
+                </div>
+
+                <!-- 文章置顶区域 -->
+                {% for each_top_article in top_articles %}
+                    <div class="article">
+                        <span class="title-l"></span>
+                        <span class="title-r-top title-r-content">置顶 / {{ each_top_article.category.name }}</span>
+                        <div class="list-content">
+                            <div class="row list-content-row-pad">
+                                <div class="col-lg-2 thumbnail-div list-content-col-pad">
+                                    <a href="{% url 'article:article_detail' each_top_article.id %}">
+                                        <img class="thumbnail-img" src="{{ MEDIA_URL }}{{ each_top_article.image }}">
+                                    </a>
+                                </div>
+                                <div class="col-lg-10">
+                                    <div class="abstract-title">
+                                        <a href="{% url 'article:article_detail' each_top_article.id %}">{{ each_top_article.title }}</a>
+                                    </div>
+                                    <div class="abstract-body">
+                                        <span>内容摘要:</span>
+                                        <span>{{ each_top_article.create_abstract }}...</span>
+                                    </div>
+                                    <div class="abstract-footer">
+                                        <a href="{% url 'article:article_detail' each_top_article.id %}" style="color: #003366;" class="pull-right">查看全文 >></a>
+                                        <span> 发表日期：{{ each_top_article.add_time }}
+                                        <i class="fa fa-eye fa-number" title="阅读量"> {{ each_top_article.views }}</i>
+                                        <i class="fa fa-comment-o fa-number" title="评论数"> {{ each_top_article.comment_article.count }}</i>
+                                        <i class="fa fa-heart-o fa-number"
+                                           title="赞"> {{ each_top_article.like_article.count }}</i>
+                                    </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+
+
+                <!-- 普通文章区域 -->
+                {% for each_normal_article in normal_articles.object_list %}
+                    <div class="article">
+                        <span class="title-l"></span>
+                        <span class="title-r title-r-content">{{ each_normal_article.category.name }}</span>
+                        <div class="list-content">
+                            <div class="row list-content-row-pad">
+                                <div class="col-lg-2 thumbnail-div list-content-col-pad">
+                                    <a href="{% url 'article:article_detail' each_normal_article.id %}">
+                                        <img class="thumbnail-img" src="{{ MEDIA_URL }}{{ each_normal_article.image }}">
+                                    </a>
+                                </div>
+                                <div class="col-lg-10">
+                                    <div class="abstract-title">
+                                        <a href="{% url 'article:article_detail' each_normal_article.id %}">{{ each_normal_article.title }}</a>
+                                    </div>
+                                    <div class="abstract-body">
+                                        <span>内容摘要:</span>
+                                        <span>{{ each_normal_article.create_abstract }}...</span>
+                                    </div>
+                                    <div class="abstract-footer">
+                                        <a href="{% url 'article:article_detail' each_normal_article.id %}" style="color: #003366;" class="pull-right">查看全文 >></a>
+                                        <span>发表日期：{{ each_normal_article.add_time }}
+                                        <i class="fa fa-eye fa-number" title="阅读量"> {{ each_normal_article.views }}</i>
+                                        <i class="fa fa-comment-o fa-number" title="评论数"> {{ each_normal_article.comment_article.count }}</i>
+                                        <i class="fa fa-heart-o fa-number"
+                                           title="赞"> {{ each_normal_article.like_article.count }}</i>
+                                    </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+
+                <!-- 页码 -->
+                <div class="pull-right page-box">
+                    <div class="text-center">
+                        <ul class="pagination">
+
+                            <!-- 上一页 -->
+                            {% if normal_articles.has_previous %}
+                                <li><a href="?{{ normal_articles.previous_page_number.querystring }}">上一页<span class="sr-only"></span></a></li>
+                                <li><a href="?{{ normal_articles.previous_page_number.querystring }}">&laquo;<span class="sr-only"></span></a></li>
+                            {% else %}
+                                <li><a href="">上一页<span class="sr-only"></span></a></li>
+                                <li><a href="">&laquo;<span class="sr-only"></span></a></li>
+                            {% endif %}
+
+                            <!-- 页码 -->
+                            {% for page in normal_articles.pages %}
+                                {% if page %}
+                                    <!-- 当前页 -->
+                                    {% ifequal page normal_articles.number %}
+                                        <li class="active"><a href="?page={{ page }}">{{ page }}<span class="sr-only">(current)</span></a></li>
+                                        <!-- 其它页 -->
+                                    {% else %}
+                                        <li><a href="?page={{ page }}">{{ page }}<span class="sr-only"></span></a></li>
+                                    {% endifequal %}
+                                    <!-- 省略页 -->
+                                {% else %}
+                                    <li><a href="">...<span class="sr-only"></span></a></li>
+                                {% endif %}
+                            {% endfor %}
+
+                            <!-- 下一页 -->
+                            {% if normal_articles.has_next %}
+                                <li><a href="?{{ normal_articles.next_page_number.querystring }}">&raquo;<span class="sr-only"></span></a></li>
+                                <li><a href="?{{ normal_articles.next_page_number.querystring }}">下一页<span class="sr-only"></span></a></li>
+                            {% else %}
+                                <li><a href="">&raquo;<span class="sr-only"></span></a></li>
+                                <li><a href="">下一页<span class="sr-only"></span></a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endblock base_center_content %}

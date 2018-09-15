@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block title %}
+    {{ course.name }}
+{% endblock title %}
+
+
+{% block base_center_content %}
+    <div class="col-lg-8 block-pad">
+        <div class="panel panelbody-bottom-mar">
+            <div class="panel-body">
+
+                <!-- 大图 -->
+                <div class="carousel slide banner-bottom">
+                    <div class="carousel-inner">
+                        <div class="item active">
+                            <img src="{{ MEDIA_URL }}{{ course.banner_image }}" class="banner-size">
+                        </div>
+                    </div>
+                </div>
+
+                {% if articles.object_list %}
+                    {% for each_article in articles.object_list %}
+                        <div class="article">
+                            <span class="title-l"></span>
+                            <span class="title-r title-r-content">{{ each_article.category.name }}</span>
+                            <div class="list-content">
+                                <div class="row list-content-row-pad">
+                                    <div class="col-lg-2 thumbnail-div list-content-col-pad">
+                                        <a href="{% url 'article:course_detail' each_article.id %}">
+                                            <img class="thumbnail-img" src="{{ MEDIA_URL }}{{ each_article.image }}">
+                                        </a>
+                                    </div>
+                                    <div class="col-lg-10">
+                                        <div class="abstract-title">
+                                            <a href="{% url 'article:course_detail' each_article.id %}">{{ each_article.title }}</a>
+                                        </div>
+                                        <div class="abstract-body">
+                                            <span>内容摘要:</span>
+                                            <span>{{ each_article.create_abstract }}...</span>
+                                        </div>
+                                        <div class="abstract-footer">
+                                            <a href="{% url 'article:course_detail' each_article.id %}" style="color: #003366;" class="pull-right">查看全文 >></a>
+                                            <span>发表日期：{{ each_article.add_time }}
+                                                <i class="fa fa-eye fa-number" title="阅读量"> {{ each_article.views }}</i>
+                                                <i class="fa fa-comment-o fa-number" title="评论数"> {{ each_article.comment_article.count }}</i>
+                                                <i class="fa fa-heart-o fa-number" title="赞"> {{ each_article.like_article.count }}</i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                    <!-- 页码 -->
+                    <div class="pull-right page-box">
+                        <div class="text-center">
+                            <ul class="pagination">
+
+                                <!-- 上一页 -->
+                                {% if articles.has_previous %}
+                                    <li><a href="?{{ articles.previous_page_number.querystring }}">上一页<span
+                                            class="sr-only"></span></a></li>
+                                    <li><a href="?{{ articles.previous_page_number.querystring }}">&laquo;<span
+                                            class="sr-only"></span></a></li>
+                                {% else %}
+                                    <li><a href="">上一页<span class="sr-only"></span></a></li>
+                                    <li><a href="">&laquo;<span class="sr-only"></span></a></li>
+                                {% endif %}
+
+                                <!-- 页码 -->
+                                {% for page in articles.pages %}
+                                    {% if page %}
+                                        <!-- 当前页 -->
+                                        {% ifequal page articles.number %}
+                                            <li class="active"><a href="?page={{ page }}">{{ page }}<span
+                                                    class="sr-only">(current)</span></a>
+                                            </li>
+                                            <!-- 其它页 -->
+                                        {% else %}
+                                            <li><a href="?page={{ page }}">{{ page }}<span class="sr-only"></span></a>
+                                            </li>
+                                        {% endifequal %}
+                                        <!-- 省略页 -->
+                                    {% else %}
+                                        <li><a href="">...<span class="sr-only"></span></a></li>
+                                    {% endif %}
+                                {% endfor %}
+
+                                <!-- 下一页 -->
+                                {% if articles.has_next %}
+                                    <li><a href="?{{ articles.next_page_number.querystring }}">&raquo;<span
+                                            class="sr-only"></span></a></li>
+                                    <li><a href="?{{ articles.next_page_number.querystring }}">下一页<span
+                                            class="sr-only"></span></a></li>
+                                {% else %}
+                                    <li><a href="">&raquo;<span class="sr-only"></span></a></li>
+                                    <li><a href="">下一页<span class="sr-only"></span></a></li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+{% endblock base_center_content %}
+
+<!-- 目录 -->
+{% block base_right_title %}
+    <div class="panel panel-bottom-pad">
+        <div class="panel-heading panel-heading-bottom">
+            <div class="small-title">专题目录</div>
+        </div>
+        <div class="panel-body panelbody-bottom-mar hot-article">
+            <ul class="lu-pl-style">
+                {% for each_course in all_course %}
+                    <li>
+                        <span class="li-icon li-icon-1">{{ forloop.counter }}</span>
+                        <a href="{% url 'article:course_detail' each_course.id %}">{{ each_course.title|slice:"25" }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endblock base_right_title %}
+
+{% block base_right_hot %}
+{% endblock base_right_hot %}
+
+{% block base_right_comment %}
+{% endblock base_right_comment %}

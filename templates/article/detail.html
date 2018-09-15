@@ -1,0 +1,407 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load article_tags %}
+
+
+{% block title %}
+    文章详情 | {{ article.title }}
+{% endblock title %}
+
+
+{% block base_center_content %}
+    <div class="col-lg-8 block-pad">
+        <div class="panel panel-bottom-pad">
+            <div class="panel-body">
+                <div class="detail-title">{{ article.title }}</div>
+                <div class="detail-tag">
+                    <form method="get">
+                        <a class="btn btn-sm btn-default">作者：{{ article.author.name }}</a>
+                        <a class="btn btn-sm btn-default">更新：{{ article.update_time }}</a>
+                        <a class="btn btn-sm btn-default">类型：{{ article.category.name }}</a>
+                        <a class="btn btn-sm btn-default">分类：{% for each in article.tag.all %}
+                            {% if forloop.counter == 1 %}{{ each.name }}{% else %}，{{ each.name }}{% endif %}
+                        {% endfor %}</a>
+
+                        <div class="pull-right">
+                            <a class="btn btn-sm btn-default" title="点击量">
+                                <i class="fa fa-eye"> {{ article.views }}</i>
+                            </a>
+                            <a class="btn btn-sm btn-default" title="点赞数">
+                                <i class="fa fa-thumbs-o-up"> {{ article.like_article.count }}</i>
+                            </a>
+
+                            <button type="submit" formaction="" class="btn btn-sm btn-default">
+                                <i class="fa fa-print"> 导出</i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div style="padding-top: 10px;">
+                    <div class="panel panel-default panelbody-bottom-mar">
+                        <div class="panel-body">
+                            <div class="article-spacing">
+                                <p>{{ article.content|safe }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="list-group panel-bottom-pad like-btn text-center">
+            {% if is_like %}
+                <a class="list-group-item" style="background-color: #2f889a;color: white;" disabled="true">
+                    <i class="fa fa-thumbs-o-up"> 已赞，大兄（胸）弟阔以的</i>
+                </a>
+            {% else %}
+                <form id="id_submitLikeForm" method="post">
+                    <input type="hidden" name="art_id" value="{{ article.id }}">
+                </form>
+                <a id="id_submitLikeBtn" class="list-group-item">
+                    <i class="fa fa-thumbs-o-up"> 大兄（胸）弟，抬手就是一个赞</i>
+                </a>
+            {% endif %}
+        </div>
+
+        <div class="panel panel-bottom-pad">
+            <div class="panel-body">
+                <div class="row h-50">
+                    <div class="col-lg-1">
+                        <img class="img-rounded hw-50" src="{% static 'img/avatar/default.png' %}" alt="">
+                    </div>
+                    <div class="col-lg-11">
+                        <div class="lh-25"><b>版权说明：</b>本站文章都属于作者在学习工作过程中总结而出的，不存在照搬网上其它博客文章的情况，请放心食用。
+                        </div>
+                        <div class="lh-25"><b>转载说明：</b><a href="">{{ article.title }}</a> | <a
+                                href="{{ SERVICE_URL }}">转载至 {% get_owner_name %}‘s blog</a>（ 转载请注明 ）
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="id_writeComment"></div>
+
+        <div class="panel panel-bottom-pad">
+            <div class="panel-body text-center">
+                {% get_previous_article article.id as p_article %}
+                {% get_next_article article.id as n_article %}
+                <a href="{% if p_article %}{% url 'article:article_detail' p_article.id %}{% endif %}"
+                   class="col-lg-6 b-r-1">
+                    上一篇：{% if p_article %}{{ p_article.title }}{% else %}没有了{% endif %}
+                </a>
+                <a href="{% if n_article %}{% url 'article:article_detail' n_article.id %}{% endif %}"
+                   class="col-lg-6 b-l-1">
+                    下一篇：{% if n_article %}{{ n_article.title }}{% else %}没有了{% endif %}
+                </a>
+            </div>
+        </div>
+
+        <div class="panel panel-bottom-pad">
+            <div class="panel-body">
+                <div class="panelbody-bottom-mar">
+                    <form method="post" id="id_submitCommentForm">
+                        <div class="send-cmt-title" id="id_replayUser">发表评论：</div>
+                        <input type="hidden" name="art_id" value="{{ article.id }}">
+                        <input type="hidden" name="cmt_id" value="">
+
+                        {% if request.user.is_authenticated %}
+                            <input type="hidden" name="user" value="1">
+                        {% else %}
+                            <input type="hidden" name="user" value="2">
+                        {% endif %}
+
+                        <textarea class="form-control" name="comment" cols="30" rows="5"></textarea>
+
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="input-group mt-10 f-w">
+                                    <span class="input-group-addon w-80">邮 箱</span>
+                                    <input type="text" name="email" class="form-control"
+                                           {% if request.user.is_authenticated %}value="{{ request.user.email }}"{% endif %}>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6">
+                                <div class="input-group mt-10 f-w">
+                                    <span class="input-group-addon">性 别</span>
+                                    <select name="gender" class="selectpicker form-control">
+                                        <option value="1">男</option>
+                                        <option value="2">女（ 你确定你是小姐姐？ ）</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="pull-left">
+                                    <div class="outer">
+                                        <div class="filter-box"></div>
+                                        <span>滑动解锁</span>
+                                        <div class="inner">&gt;&gt;</div>
+                                    </div>
+                                </div>
+                                <div id="id_submitCommentDiv" class="pull-right submit-btn mt-10 mr-15"
+                                     style="display: none;">
+                                    <a id="id_submitCommentBtn" class="btn btn-sm commit-cmt-btn">提交评论</a>
+                                </div>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-bottom-pad">
+            <div class="panel-body">
+                <div class="send-cmt-title">评论列表 <span
+                        style="color: orangered;">（ 当前评论数 {{ article.comment_article.count }} ）</span>：
+                </div>
+
+                <table class="table mb-0">
+                    {% if comments.object_list %}
+                        {% for comment in comments.object_list %}
+                            <tr>
+                                <td class="pl-0">
+                                    <div class="pt-10 pb-10" id="id_comment{{ comment.id }}">
+                                        <div class="fl-6">
+                                            <img src="{% static '' %}{{ comment.avatar }}" class="img-rounded hw-30"
+                                                 alt="">
+                                        </div>
+                                        <div class="fr-94">
+                                            <div>
+                                                {% if comment.user == 1 %}
+                                                    <b style="color: orangered;">{% get_owner_name %}</b>
+                                                {% else %}
+                                                    <b>{{ comment.address }}网友 [ <span
+                                                            style="font-weight: normal; color: #003366;">{{ comment.email }}</span>
+                                                        ]</b>
+                                                {% endif %}
+                                                <span class="pl-10">{{ comment.add_time }}</span>
+                                                <span class="pull-right" id="id_replay{{ comment.id }}"
+                                                      style="display: none;">
+                                                    <a class="commit-cmt-wd" id="id_replayComment{{ comment.id }}"
+                                                       href="#id_writeComment">回复</a>
+                                                </span>
+                                            </div>
+
+                                            <div class="pt-10 pb-10">
+                                                <span>{{ comment.comment }}</span>
+                                            </div>
+
+                                            <!-- 回复 -->
+                                            {% if comment.replay_comment.count != 0 %}
+                                                <table class="table mb-0">
+                                                    {% for rep_comment in comment.replay_comment.all %}
+                                                        <tr>
+                                                            <td class="pl-0" style="border-top: none;">
+                                                                <div>
+                                                                    <div class="fl-6">
+                                                                        <img src="
+                                                                                {% static '' %}{{ rep_comment.avatar }}"
+                                                                             class="img-rounded hw-30">
+                                                                    </div>
+                                                                    <div class="fr-94">
+                                                                        <div>
+                                                                            {% if rep_comment.user == 1 %}
+                                                                                <b style="color: orangered;">{% get_owner_name %}</b>
+                                                                            {% else %}
+                                                                                <b>{{ rep_comment.address }}网友 [ <span
+                                                                                        style="font-weight: normal; color: #003366;">{{ rep_comment.email }}</span>
+                                                                                    ]</b>
+                                                                            {% endif %}
+                                                                            <span class="pl-10">{{ rep_comment.add_time }}</span>
+                                                                        </div>
+                                                                        <div class="pt-10">
+                                                                            <span>{{ rep_comment.replay }}</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                </table>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td class="text-center" style="padding-top: 20px;">
+                                暂无评论
+                            </td>
+                        </tr>
+                    {% endif %}
+
+
+                </table>
+
+            </div>
+
+            <div class="panel-footer">
+                <!-- 页码 -->
+                <div class="page-box">
+                    <div class="text-center pull-right">
+                        <ul class="pagination">
+
+                            <!-- 上一页 -->
+                            {% if comments.has_previous %}
+                                <li><a href="?{{ comments.previous_page_number.querystring }}">上一页<span
+                                        class="sr-only"></span></a></li>
+                                <li><a href="?{{ comments.previous_page_number.querystring }}">&laquo;<span
+                                        class="sr-only"></span></a></li>
+                            {% else %}
+                                <li><a href="">上一页<span class="sr-only"></span></a></li>
+                                <li><a href="">&laquo;<span class="sr-only"></span></a></li>
+                            {% endif %}
+
+                            <!-- 页码 -->
+                            {% for page in comments.pages %}
+                                {% if page %}
+                                    <!-- 当前页 -->
+                                    {% ifequal page comments.number %}
+                                        <li class="active"><a href="?page={{ page }}">{{ page }}<span class="sr-only">(current)</span></a>
+                                        </li>
+                                        <!-- 其它页 -->
+                                    {% else %}
+                                        <li><a href="?page={{ page }}">{{ page }}<span class="sr-only"></span></a></li>
+                                    {% endifequal %}
+                                    <!-- 省略页 -->
+                                {% else %}
+                                    <li><a href="">...<span class="sr-only"></span></a></li>
+                                {% endif %}
+                            {% endfor %}
+
+                            <!-- 下一页 -->
+                            {% if comments.has_next %}
+                                <li><a href="?{{ comments.next_page_number.querystring }}">&raquo;<span
+                                        class="sr-only"></span></a></li>
+                                <li><a href="?{{ comments.next_page_number.querystring }}">下一页<span
+                                        class="sr-only"></span></a></li>
+                            {% else %}
+                                <li><a href="">&raquo;<span class="sr-only"></span></a></li>
+                                <li><a href="">下一页<span class="sr-only"></span></a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock base_center_content %}
+
+<!-- 同类推荐 -->
+{% block base_similar_article %}
+    <div class="panel panel-bottom-pad">
+        <div class="panel-heading panel-heading-bottom">
+            <div class="small-title">同类推荐</div>
+        </div>
+        <div class="panel-body panelbody-bottom-mar hot-article">
+            {% get_similar_article article.id as similar_lists %}
+            <ul class="lu-pl-style">
+                {% for each_article in similar_lists %}
+                    <li>
+                        <span class="li-icon li-icon-1">{{ forloop.counter }}</span>
+                        <a href="{% url 'article:article_detail' each_article.id %}">{{ each_article.title|slice:"25" }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endblock base_similar_article %}
+
+
+{% block base_right_hot %}
+{% endblock base_right_hot %}
+
+
+{% block base_right_comment %}
+{% endblock base_right_comment %}
+
+
+{% block base_footer_static %}
+    {% if not is_like %}
+        <!-- 点赞 -->
+        <script>
+            $(function () {
+                // 提交表单
+                $('#id_submitLikeBtn').on('click', function () {
+                    $.ajax({
+                        cache: false,
+                        type: "POST",
+                        url: "{% url 'article:article_like' %}",
+                        data: $('#id_submitLikeForm').serialize(),
+                        async: true,
+                        beforeSend: function (xhr, settings) {
+                            xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                        },
+                        success: function (data) {
+                            if (data.status == 'success') {
+                                window.location.reload();
+                            } else if (data.status == 'failed') {
+                                window.alert(data.msg);
+                            }
+                        }
+                    });
+                });
+            })
+        </script>
+    {% endif %}
+
+
+    {% for comment in comments.object_list %}
+        <script>
+            // 显示回复按钮
+            $(document).ready(function () {
+                $("#id_comment{{ comment.id }}").mouseover(function () {
+                        $("#id_replay{{ comment.id }}").show();
+                    }
+                );
+                $("#id_comment{{ comment.id }}").mouseout(function () {
+                    $("#id_replay{{ comment.id }}").hide();
+                });
+            });
+        </script>
+
+        <!-- 点击回复 -->
+        <script>
+            $(function () {
+                // 提交表单
+                $('#id_replayComment{{ comment.id }}').on('click', function () {
+                    document.getElementsByName('cmt_id')[0].value = {{ comment.id }};
+                    document.getElementById('id_replayUser').innerHTML = '回复：{{ comment.address }}网友 [ {{ comment.email }} ]';
+                    document.getElementById('id_replayUser').style.color = '#003366';
+                });
+            })
+        </script>
+    {% endfor %}
+
+    <script>
+        $(function () {
+            // 提交表单
+            $('#id_submitCommentBtn').on('click', function () {
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "{% url 'article:article_comment' %}",
+                    data: $('#id_submitCommentForm').serialize(),
+                    async: true,
+                    beforeSend: function (xhr, settings) {
+                        xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                    },
+                    success: function (data) {
+                        if (data.status == 'success') {
+                            window.location.reload();
+                        } else if (data.status == 'failed') {
+                            window.alert(data.msg);
+                        }
+                    }
+                });
+            });
+        })
+    </script>
+{% endblock base_footer_static %}

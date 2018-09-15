@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+
+{% block title %}
+    专题首页
+{% endblock title %}
+
+
+{% block base_main_content %}
+    <div class="col-lg-9 pr-0">
+        <div class="panel">
+            <div class="panel-body pl-0">
+
+                {% if courses.object_list %}
+                    {% for each_course in courses.object_list %}
+                        <div class="col-lg-4 mb-10 pr-0">
+                            <div class="panel mb-0 mt-10">
+                                <div class="panel-body no-padder">
+                                    <a href="{% url 'article:course_list' each_course.id %}">
+                                        <img src="{{ MEDIA_URL }}{{ each_course.image }}" class="course-image" alt="">
+                                    </a>
+                                </div>
+                                <div class="panel-footer" style="letter-spacing: 0.5px;">
+                                    <a href="{% url 'article:course_list' each_course.id %}">
+                                        <h4 style="color: #1c2b36; font-size: 20px;">{{ each_course.name }}</h4>
+                                    </a>
+                                    <div style="color: #bababa;">更新日期：{{ each_course.update_time }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+
+                    <div class="row"></div>
+
+                    <!-- 页码 -->
+                    <div class="pull-right page-box">
+                        <div class="text-center">
+                            <ul class="pagination">
+
+                                <!-- 上一页 -->
+                                {% if courses.has_previous %}
+                                    <li><a href="?{{ courses.previous_page_number.querystring }}">上一页<span
+                                            class="sr-only"></span></a></li>
+                                    <li><a href="?{{ courses.previous_page_number.querystring }}">&laquo;<span
+                                            class="sr-only"></span></a></li>
+                                {% else %}
+                                    <li><a href="">上一页<span class="sr-only"></span></a></li>
+                                    <li><a href="">&laquo;<span class="sr-only"></span></a></li>
+                                {% endif %}
+
+                                <!-- 页码 -->
+                                {% for page in courses.pages %}
+                                    {% if page %}
+                                        <!-- 当前页 -->
+                                        {% ifequal page courses.number %}
+                                            <li class="active"><a href="?page={{ page }}">{{ page }}<span
+                                                    class="sr-only">(current)</span></a>
+                                            </li>
+                                            <!-- 其它页 -->
+                                        {% else %}
+                                            <li><a href="?page={{ page }}">{{ page }}<span class="sr-only"></span></a>
+                                            </li>
+                                        {% endifequal %}
+                                        <!-- 省略页 -->
+                                    {% else %}
+                                        <li><a href="">...<span class="sr-only"></span></a></li>
+                                    {% endif %}
+                                {% endfor %}
+
+                                <!-- 下一页 -->
+                                {% if courses.has_next %}
+                                    <li><a href="?{{ courses.next_page_number.querystring }}">&raquo;<span
+                                            class="sr-only"></span></a></li>
+                                    <li><a href="?{{ courses.next_page_number.querystring }}">下一页<span
+                                            class="sr-only"></span></a></li>
+                                {% else %}
+                                    <li><a href="">&raquo;<span class="sr-only"></span></a></li>
+                                    <li><a href="">下一页<span class="sr-only"></span></a></li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+
+                {% else %}
+                    <div class="text-center">
+                        暂无专题
+                    </div>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+{% endblock base_main_content %}
+
+
+{% block base_right_comment %}
+{% endblock base_right_comment %}

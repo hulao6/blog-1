@@ -1,0 +1,390 @@
+{% load staticfiles %}
+{% load article_tags %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>{% block title %}首页{% endblock title %}</title>
+    <link rel="shortcut icon" href="{% static 'favicon.ico' %}">
+
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" type="text/css">
+    <link rel="stylesheet" href="{% static 'css/app.css' %}" type="text/css">
+    <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}" type="text/css">
+
+    <script src="{% static 'js/jquery-2.2.4.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+
+    <link rel="stylesheet" href="{% static 'css/blog.css' %}" type="text/css">
+    <script src="{% static 'js/blog.js' %}"></script>
+
+    <link rel="stylesheet" href="{% static 'plugins/bootstrap_date/bootstrap-select.css' %}" type="text/css">
+    <script src="{% static 'plugins/bootstrap_date/bootstrap-select.js' %}"></script>
+
+    <script src="{% static 'plugins/ckeditor/ckeditor.js' %}"></script>
+    <link href="{% static 'plugins/ckeditor/plugins/codesnippet/lib/highlight/styles/monokai_sublime.css' %}"
+          rel="stylesheet"/>
+    <script src="{% static 'plugins/ckeditor/plugins/codesnippet/lib/highlight/highlight.pack.js' %}"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    <style>
+        pre {
+            padding: 0;
+            margin: 0 0 10px;
+            font-size: 13px;
+            background-color: #f5f5f5;
+            border: none;
+            letter-spacing: 0.8px;
+        }
+    </style>
+
+    {% block base_header_static %}
+    {% endblock base_header_static %}
+</head>
+
+<body>
+<div id="pageTop" class="app app-header-fixed">
+
+    <!-- 顶部菜单栏 -->
+    <div class="app-header navbar">
+        <div class="navbar-header bg-black">
+            <a href="{% url 'article:index' %}" class="navbar-brand text-lt" style="color: white !important;">
+                <span class="hidden-folded m-l-xs">{% get_owner_name %}'s BLOG</span>
+            </a>
+        </div>
+
+        <div class="pos-rlt navbar-collapse box-shadow bg-white-only">
+            <ul class="title-ul" style="display: inline">
+                <li class="title-li">
+                    <a href="{% url 'article:index' %}" {% if menu_name == 'index' %}style="color: #c92027;"{% endif %}>首页</a>
+                </li>
+                <li class="title-li">
+                    <a href="{% url 'article:article_list' 'oprations' %}"
+                       {% if menu_name == 'oprations' %}style="color: #c92027;"{% endif %}>运维</a>
+                </li>
+                <li class="title-li">
+                    <a href="{% url 'article:article_list' 'develops' %}"
+                       {% if menu_name == 'develops' %}style="color: #c92027;"{% endif %}>开发</a>
+                </li>
+                <li class="title-li">
+                    <a href="{% url 'article:article_list' 'essay' %}"
+                       {% if menu_name == 'essay' %}style="color: #c92027;"{% endif %}>随笔</a>
+                </li>
+                <li class="title-li"><a href="{% url 'article:course_index' %}"
+                                        {% if menu_name == 'course' %}style="color: #c92027;"{% endif %}>专题</a></li>
+                <li class="title-li"><a href="https://github.com/PythonTra1nee" target="_blank">GITHUB</a></li>
+            </ul>
+
+            <span class="pull-right title-ul">
+                {% if request.user.is_authenticated %}
+                    <a href="/admin4blog/" target="_blank">后台</a> |
+                    <a href="{% url 'article:not_publish_article_list' 'other' %}">未发布</a> |
+                    <a href="{% url 'article:article_write' %}" target="_blank"
+                       {% if menu_name == 'article_write' %}style="color: #c92027;"{% endif %}>写博客
+                    </a>
+                {% else %}
+                    <a data-toggle="popover" data-placement="bottom" data-trigger="hover"
+                       data-content="我要说单纯只是为了右边有点东西，你信吗？">
+                        <i class="fa fa-ellipsis-v"></i>
+                    </a>
+                {% endif %}
+            </span>
+
+        </div>
+    </div>
+
+    {% block base_center_body %}
+        <!-- 中间内容栏 -->
+        <div class="app-content content-new">
+            <div class="app-content-body fade-in-up pad-bottom-10">
+                <div class="padder pl-0">
+                    <div class="row">
+
+                        {% block base_main_content %}
+                            <!-- 友情链接 -->
+                            {% block base_left_link %}
+                                <div class="col-lg-1 block-pad friend-pad">
+                                    <div class="panel">
+                                        <div class="panel-heading panel-heading-bottom">
+                                            <div class="small-title">友情链接</div>
+                                        </div>
+                                        <div class="panel-body panelbody-bottom-mar">
+                                            <table class="table panelbody-bottom-mar">
+                                                {% get_friend_link as friend_list %}
+                                                {% for each_friend in friend_list %}
+                                                    <tr>
+                                                        <td class="friend-table-td ">
+                                                            <a target="_blank"
+                                                               href="{{ each_friend.url }}">{{ each_friend.name }}</a>
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endblock base_left_link %}
+
+                            <!-- 主体 -->
+                            {% block base_center_content %}
+                            {% endblock base_center_content %}
+                        {% endblock base_main_content %}
+
+                        {% block base_right %}
+                            <!-- 右边侧边栏 -->
+                            <div class="col-lg-3 block-pad">
+
+                                <!-- 搜索 -->
+                                {% block base_right_search %}
+                                    <div class="panel panel-bottom-pad">
+                                        <div class="panel-heading panel-heading-bottom">
+                                            <div class="small-title">搜索</div>
+                                        </div>
+                                        <div class="panel-body panelbody-bottom-mar">
+                                            <form method="get" action="{% url 'article:article_list' 'other' %}">
+                                                <div class="input-group">
+                                                    <input type="text" name="keyword"
+                                                           class="form-control input-sm bg-auto w-full" required="true"
+                                                           placeholder="关键词查找">
+                                                    <span class="input-group-btn">
+                                                    <button type="submit" class="btn btn-sm btn-default">搜索</button>
+                                                </span>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                {% endblock base_right_search %}
+
+                                <!-- 目录 -->
+                                {% block base_right_title %}
+                                {% endblock base_right_title %}
+
+                                <!-- 热门文章 -->
+                                {% block base_right_hot %}
+                                    <div class="panel panel-bottom-pad">
+                                        <div class="panel-heading panel-heading-bottom">
+                                            <div class="small-title">热门文章</div>
+                                        </div>
+                                        <div class="panel-body panelbody-bottom-mar hot-article">
+                                            <ul class="lu-pl-style">
+                                                {% get_hot_article as hot_article_list %}
+                                                {% for each_hot_article in hot_article_list %}
+                                                    <li>
+                                                        <span class="li-icon {% if forloop.counter == 1 %} li-icon-2 {% else %} li-icon-1 {% endif %}">{{ forloop.counter }}</span>
+                                                        <a href="{% url 'article:article_detail' each_hot_article.id %}">{{ each_hot_article.title|slice:"25" }}
+                                                            <span class="pull-right pr-10"
+                                                                  title="浏览量">（{{ each_hot_article.views }}）</span>
+                                                        </a>
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                {% endblock base_right_hot %}
+
+                                <!-- 同类文章 -->
+                                {% block base_similar_article %}
+                                {% endblock base_similar_article %}
+
+                                <!-- 文章标签 -->
+                                {% block base_right_tag %}
+                                    <div class="panel panel-bottom-pad">
+                                        <div class="panel-heading panel-heading-bottom">
+                                            <div class="small-title">文章标签</div>
+                                        </div>
+                                        <div class="panel-body panelbody-bottom-mar pb-0" style="padding-top: 5px;">
+                                            <table class="table">
+                                                {% get_tag as tag_list %}
+                                                {% for each_tag in tag_list %}
+                                                    <tr>
+                                                        <td class="pl-0 pr-0 article-spacing catecory-border">
+                                                            <a href="{% url 'article:article_list' 'other' %}?&tag={{ each_tag.name }}">{{ each_tag.name }}
+                                                                <span class="pull-right pr-10">（{{ each_tag.num_articles }}）</span></a>
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </table>
+                                        </div>
+                                    </div>
+                                {% endblock base_right_tag %}
+
+                                <!-- 文章归档 -->
+                                {% block base_right_archive %}
+                                    <div class="panel panel-bottom-pad">
+                                        <div class="panel-heading panel-heading-bottom">
+                                            <div class="small-title">文章归档 <span style="color: orangered;">（ 近一年 ）</span>
+                                            </div>
+                                        </div>
+                                        <div class="panel-body panelbody-bottom-mar pb-0" style="padding-top: 5px;">
+                                            <table class="table">
+
+                                                {% get_all_article as all_articles %}
+                                                {% regroup all_articles by add_time.year as y_group %}
+                                                {% for year in y_group %}
+                                                    {% regroup year.list by add_time.month as m_group %}
+                                                    {% for month in m_group %}
+                                                        <tr>
+                                                            <td class="pl-0 pr-0 article-spacing catecory-border">
+                                                                <a href="{% url 'article:article_list' 'other' %}?&year={{ year.grouper }}&month={{ month.grouper }}">
+                                                                    {{ year.grouper }} 年 {{ month.grouper }}
+                                                                    月的全部归档文章<span
+                                                                        class="pull-right pr-10">（{{ month.list | length }}）</span>
+                                                                </a>
+                                                            </td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                {% endfor %}
+
+                                            </table>
+                                        </div>
+                                    </div>
+                                {% endblock base_right_archive %}
+
+                                <!-- 最新评论 -->
+                                {% block base_right_comment %}
+                                    <div class="panel panel-bottom-pad">
+                                        <div class="panel-heading panel-heading-bottom">
+                                            <div class="small-title">最新评论</div>
+                                        </div>
+                                        <div class="panel-body panelbody-bottom-mar pb-0" style="padding-top: 5px;">
+                                            <table class="table">
+                                                {% get_latest_comment as latest_comment_list %}
+                                                {% for each_comment in latest_comment_list %}
+                                                    <tr>
+                                                        <td class="pl-0 pr-0"
+                                                            style="border-top: 0;border-bottom: 1px solid #eaeff0; line-height: 25px;">
+                                                            {{ each_comment.address }}网友 [ {{ each_comment.email }} ]
+                                                            评论了 <a
+                                                                style="color: #2f889a;"
+                                                                href="{% url 'article:article_detail' each_comment.article.id %}">《{{ each_comment.article.title }}》</a>：{{ each_comment.comment|slice:"20" }}
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </table>
+                                        </div>
+                                    </div>
+                                {% endblock base_right_comment %}
+
+                                <!-- 联系我们 -->
+                                {% block base_right_contact %}
+                                    <div class="panel panel-bottom-pad">
+                                        <div class="panel-heading panel-heading-bottom">
+                                            <div class="small-title">联系我们</div>
+                                        </div>
+                                        <div class="panel-body panelbody-bottom-mar">
+                                            <div class="row">
+                                                <div class="col-lg-4">
+                                                    <img src="{% static 'img/personal/wechat.png' %}"
+                                                         style="width: 100px; height: 100px;" alt="客服">
+                                                </div>
+
+                                                <div class="col-lg-8">
+                                                    <div>
+                                                        <p>扫描二维码微信联系我或者打赏我！</p>
+                                                        <p>当然，你也可以使用其它方式联系我：</p>
+                                                        <p><i class="fa fa-qq"></i> Q Q：1214966109</p>
+                                                        <p><i class="fa fa-envelope-o"></i> 邮 箱：1214966109@qq.com</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endblock base_right_contact %}
+
+                            </div>
+                        {% endblock base_right %}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock base_center_body %}
+
+    <!-- 侧边按钮栏 -->
+    {% block base_right_btn %}
+        <ul id="scroll">
+            <li data-toggle="popover" data-placement="left" data-trigger="hover" data-content='QQ:1214966109'>
+                <a>
+                    <i id="qq" class="fa fa-qq"></i>
+                </a>
+            </li>
+
+            <li>
+                <a data-toggle="popover" data-placement="left" data-trigger="hover" data-html="true"
+                   data-content='<div><div style="text-align: center;margin-bottom: 10px;"><span>微信</span></div><div><img src="{% static 'img/personal/wechat.png' %}" style="width:100px; height:100px;" alt=""></div></div>'>
+                    <i id="wechat" class="fa fa-wechat"></i>
+                </a>
+            </li>
+            <li>
+                <a href="#pageTop" title="返回顶部">
+                    <i class="fa fa-angle-up"></i>
+                </a>
+            </li>
+
+            <li>
+                <a href="#pageBottom" title="转到底部">
+                    <i class="fa fa-angle-down"></i>
+                </a>
+            </li>
+        </ul>
+    {% endblock base_right_btn %}
+
+</div>
+
+{% block base_footer %}
+    <div id="pageBottom" class="footer-content">
+        <div class="app-content content-new">
+            <div class="row">
+                <div class="col-lg-1"></div>
+                <div class="col-lg-8">
+                    <div class="row footer-row">
+                        <div class="col-md-6">
+                            <h4>其它项目</h4>
+                            <div>
+                                <table class="f-w">
+                                    <tr>
+                                        <td class="footer-td">暂时没有</td>
+                                        <td class="footer-td">暂时没有</td>
+                                        <td class="footer-td">暂时没有</td>
+                                        <td class="footer-td">暂时没有</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h4>合作伙伴</h4>
+                            <div>
+                                <table class="f-w">
+                                    <tr>
+                                        {% get_partner as partner_list %}
+                                        {% for each_partner in partner_list %}
+                                            <td class="footer-td">
+                                                <a style="color: white;" target="_blank"
+                                                   href="{{ each_partner.url }}">{{ each_partner.name }}</a>
+                                            </td>
+                                        {% endfor %}
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row text-center">
+                        <span>Copyright © OPMS 2018 All Rights Reserved.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock base_footer %}
+</body>
+
+<!-- 闪烁 -->
+<script type="application/javascript">
+    $(document.getElementById("wechat")).css({"-webkit-animation": "twinkling 1s infinite ease-in-out"});
+</script>
+
+{% block base_footer_static %}
+{% endblock base_footer_static %}
+
+</html>

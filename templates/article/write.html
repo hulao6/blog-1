@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+
+{% block title %}
+    写博客
+{% endblock title %}
+
+{% block base_header_static %}
+    <script type="text/javascript">
+        $(window).on('load', function () {
+            $('.selectpicker').selectpicker({
+                'selectedText': 'cat',
+            });
+        })
+    </script>
+{% endblock base_header_static %}
+
+
+{% block base_center_body %}
+    <div class="app-content content-new">
+        <div class="app-content-body fade-in-up pad-bottom-10">
+            <div class="padder">
+                <div class="row">
+                    <div class="col-lg-2 block-pad"></div>
+
+                    <!-- 中间 -->
+                    <div class="col-lg-8 block-pad">
+                        <div class="panel panel-bottom-pad">
+                            <div class="panel-body">
+
+                                <form method="post" id="id_submitArticleForm">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">标 题</span>
+                                            <input name="title" type="text" class="form-control">
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-lg-2">
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">作 者</span>
+                                                    <select name="author" class="selectpicker form-control"
+                                                            data-live-search="true" style="display: none;">
+                                                        {% for author in authors %}
+                                                            <option value="{{ author.id }}">{{ author.name }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-2">
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">栏 目</span>
+                                                    <select name="category" class="selectpicker form-control"
+                                                            data-live-search="true" style="display: none;">
+                                                        {% for category in categorys %}
+                                                            <option value="{{ category.id }}">{{ category.name }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-2">
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">置 顶</span>
+                                                    <select name="is_top" class="selectpicker form-control"
+                                                            data-live-search="true" style="display: none;">
+                                                        <option value="1">是</option>
+                                                        <option value="0">否</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3">
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">标 签</span>
+                                                    <select name="tag" class="selectpicker form-control"
+                                                            data-live-search="true" multiple="true"
+                                                            style="display: none;">
+                                                        {% for tag in tags %}
+                                                            <option value="{{ tag.id }}">{{ tag.name }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-3">
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <span class="input-group-addon">专 题</span>
+                                                    <select name="subject" class="selectpicker form-control" data-live-search="true" style="display: none;">
+                                                        <option value="">无</option>
+                                                        {% for subject in subjects %}
+                                                            <option value="{{ subject.id }}">{{ subject.name }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="full-width">
+                                        <textarea id="write_area" name="content" class="ckeditor"></textarea>
+                                    </div>
+
+                                    <!-- 设置编辑框高度 -->
+                                    <script>
+                                        CKEDITOR.replace('write_area', {
+                                            height: 600
+                                        });
+                                    </script>
+                                </form>
+
+                                <div class="row pt-10 pull-right" style="padding-right: 15px;">
+                                    <a class="btn btn-sm btn-info" id="id_submitArticleBtn">发表文章</a>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-2 block-pad"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock base_center_body %}
+
+
+{% block base_footer %}
+{% endblock base_footer %}
+
+
+{% block base_footer_static %}
+    <!-- 添加文档提交 -->
+    <script>
+        //处理CKEDITOR的值
+        function CKupdate() {
+            for (instance in CKEDITOR.instances)
+                CKEDITOR.instances[instance].updateElement();
+        }
+
+        $(function () {
+            // 提交表单
+            $('#id_submitArticleBtn').on('click', function () {
+                CKupdate();
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "{% url 'article:article_write' %}",
+                    data: $('#id_submitArticleForm').serialize(),
+                    async: true,
+                    beforeSend: function (xhr, settings) {
+                        xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                    },
+                    success: function (data) {
+                        if (data.status == 'success') {
+                            window.location.reload();
+                        } else if (data.status == 'failed') {
+                            window.alert(data.msg);
+                        }
+                    }
+                });
+            });
+        })
+    </script>
+{% endblock base_footer_static %}
+
+
