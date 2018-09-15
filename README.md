@@ -27,3 +27,11 @@ http://119.29.105.186:8080/
 2. 同步数据库和创建超级管理员
 
 3. 登录后台进行简单的初始化操作，注意这里的后台地址为了安全已经不再是 /admin，具体可以去查看代码
+
+### 示例图片
+
+![enter description here](https://github.com/PythonTra1nee/blog/blob/master/display/index.png?raw=true)
+
+![enter description here](https://github.com/PythonTra1nee/blog/blob/master/display/detail.png?raw=true)
+
+![enter description here](https://github.com/PythonTra1nee/blog/blob/master/display/course.png?raw=true)
